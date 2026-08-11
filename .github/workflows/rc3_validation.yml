@@ -68,6 +68,12 @@ jobs:
           npm run lint
           npm run test -- --passWithNoTests
 
+      - name: Create CI environment file
+        run: |
+          cp .env.example .env
+          sed -i 's/ENVIRONMENT=development/ENVIRONMENT=test/g' .env
+          echo "Generated CI .env file successfully."
+
       - name: Clean Build Docker Image
         run: |
           docker compose build --no-cache
@@ -139,3 +145,7 @@ jobs:
             backend/bandit_report.txt
             backend/e2e_metrics.txt
             docker_failure_logs.txt
+
+      - name: Cleanup CI Environment
+        if: always()
+        run: rm -f .env
