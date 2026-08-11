@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
@@ -24,13 +26,15 @@ from app.services.interfaces import (
     ConcreteResearchAgentService,
 )
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db),
 ) -> User:
+    if not credentials:
+        raise AppError(status_code=401, title="Unauthorized", detail="Not authenticated")
     try:
         payload = decode_access_token(credentials.credentials)
         user_id = payload.get("sub")
@@ -52,7 +56,7 @@ async def get_current_user(
 
 async def get_current_workspace_id(
     current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
-) -> str:
+) -> uuid.UUID:
     from app.models import Workspace
 
     ws_result = await db.execute(select(Workspace).where(Workspace.owner_id == current_user.id))

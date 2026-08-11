@@ -132,7 +132,19 @@ async def run_e2e():
         );
         """
         process = await asyncio.create_subprocess_exec(
-            "docker", "compose", "exec", "-T", "postgres", "psql", "-U", "postgres", "-d", "copilot", "-t", "-c", sql_cmd,
+            "docker",
+            "compose",
+            "exec",
+            "-T",
+            "postgres",
+            "psql",
+            "-U",
+            "postgres",
+            "-d",
+            "copilot",
+            "-t",
+            "-c",
+            sql_cmd,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )

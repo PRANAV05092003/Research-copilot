@@ -11,7 +11,7 @@ from app.models import Paper, PaperChunk
 @pytest.fixture
 def mock_embedding_provider():
     provider = AsyncMock()
-    provider.generate_embeddings.return_value = [[0.1, 0.2, 0.3]]
+    provider.embed_documents.return_value = [[0.1, 0.2, 0.3]]
     return provider
 
 
@@ -49,7 +49,7 @@ async def test_pgvector_retriever(mock_session, mock_embedding_provider):
     assert len(results) == 1
     assert results[0]["text"] == "Raw chunk text"
     assert results[0]["paper_title"] == "Test Paper"
-    mock_embedding_provider.generate_embeddings.assert_called_once_with(["test query"])
+    mock_embedding_provider.embed_documents.assert_called_once_with(["test query"])
     mock_session.execute.assert_called_once()
 
 
