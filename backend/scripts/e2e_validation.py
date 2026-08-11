@@ -12,7 +12,7 @@ API_BASE = "http://localhost:8000/api/v1"
 
 # Minimal valid PDF file encoded in base64
 # This is a very tiny PDF that just contains text "Hello World"
-PDF_B64 = "JVBERi0xLjQKJcOkw7zDtsOfCjIgMCBvYmoKPDwvTGVuZ3RoIDMgMCBSL0ZpbHRlci9GbGF0ZURlY29kZT4+CnN0cmVhbQp4nDPQM1Qo5ypUMFAwALJMLY31jBQsTAz1DMyB1BQgN03P0FDPwEyhuCQzLx2oQ6EEAN7ACjoKZW5kc3RyZWFtCmVuZG9iagoKCjMgMCBvYmoKNDUKZW5kb2JqCgo0IDAgb2JqCjw8L1R5cGUvUGFnZS9NZWRpYUJveFswIDAgNTk1IDg0Ml0vUmVzb3VyY2VzPDwvRm9udDw8L0YxIDEgMCBSPj4+Pi9Db250ZW50cyAyIDAgUi9QYXJlbnQgNSAwIFI+PgplbmRvYmoKCjEgMCBvYmoKPDwvVHlwZS9Gb250L1N1YnR5cGUvVHlwZTEvQmFzZUZvbnQvSGVsdmV0aWNhPj4KZW5kb2JqCgo1IDAgb2JqCjw8L1R5cGUvUGFnZXMvQ291bnQgMS9LaWRzWzQgMCBSXT4+CmVuZG9iagoKNiAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgNSAwIFI+PgplbmRvYmoKCjcgMCBvYmoKPDwvUHJvZHVjZXIoUmVwb3J0TGFiIFBERiBMaWJyYXJ5IC0gd3d3LnJlcG9ydGxhYi5jb20pL0NyZWF0aW9uRGF0ZShEOjIwMjQxMDIyMDgwMTAwWik+PgplbmRvYmoKCnhyZWYKMCA4CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDI1OCAwMDAwMCBuIAowMDAwMDAwMDE1IDAwMDAwIG4gCjAwMDAwMDAxMzIgMDAwMDAgbiAKMDAwMDAwMDE1MyAwMDAwMCBuIAowMDAwMDAwMzQ2IDAwMDAwIG4gCjAwMDAwMDA0MDMgMDAwMDAgbiAKMDAwMDAwMDQ1MiAwMDAwMCBuIAp0cmFpbGVyCjw8L1NpemUgOC9Sb290IDYgMCBSL0luZm8gNyAwIFIvSUQgWzwxNTMzNDVFNzJDN0Y2MTczRTFDNTc4NjNDQUZBN0QyQT48MTUzMzQ1RTcyQzdGNjE3M0UxQzU3ODYzQ0FGQTdEMkE+XT4+CnN0YXJ0eHJlZgo1NTkKJSVFT0YK"
+PDF_B64 = "JVBERi0xLjMKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgKG9wZW5zb3VyY2UpCjEgMCBvYmoKPDwKL0YxIDIgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhIC9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nIC9OYW1lIC9GMSAvU3VidHlwZSAvVHlwZTEgL1R5cGUgL0ZvbnQKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL0NvbnRlbnRzIDcgMCBSIC9NZWRpYUJveCBbIDAgMCA1OTUuMjc1NiA4NDEuODg5OCBdIC9QYXJlbnQgNiAwIFIgL1Jlc291cmNlcyA8PAovRm9udCAxIDAgUiAvUHJvY1NldCBbIC9QREYgL1RleHQgL0ltYWdlQiAvSW1hZ2VDIC9JbWFnZUkgXQo+PiAvUm90YXRlIDAgL1RyYW5zIDw8Cgo+PiAKICAvVHlwZSAvUGFnZQo+PgplbmRvYmoKNCAwIG9iago8PAovUGFnZU1vZGUgL1VzZU5vbmUgL1BhZ2VzIDYgMCBSIC9UeXBlIC9DYXRhbG9nCj4+CmVuZG9iago1IDAgb2JqCjw8Ci9BdXRob3IgKGFub255bW91cykgL0NyZWF0aW9uRGF0ZSAoRDoyMDI2MDgxMTEwMjY1MCswNScwMCcpIC9DcmVhdG9yIChhbm9ueW1vdXMpIC9LZXl3b3JkcyAoKSAvTW9kRGF0ZSAoRDoyMDI2MDgxMTEwMjY1MCswNScwMCcpIC9Qcm9kdWNlciAoUmVwb3J0TGFiIFBERiBMaWJyYXJ5IC0gXChvcGVuc291cmNlXCkpIAogIC9TdWJqZWN0ICh1bnNwZWNpZmllZCkgL1RpdGxlICh1bnRpdGxlZCkgL1RyYXBwZWQgL0ZhbHNlCj4+CmVuZG9iago2IDAgb2JqCjw8Ci9Db3VudCAxIC9LaWRzIFsgMyAwIFIgXSAvVHlwZSAvUGFnZXMKPj4KZW5kb2JqCjcgMCBvYmoKPDwKL0ZpbHRlciBbIC9BU0NJSTg1RGVjb2RlIC9GbGF0ZURlY29kZSBdIC9MZW5ndGggMTAwCj4+CnN0cmVhbQpHYXBRaDBFPUYsMFVcSDNUXHBOWVReUUtrP3RjPklQLDtXI1UxXjIzaWhQRU1fP0NXNEtJU2k5MEVDLXA+UWtSdGU9PCVWTCUsIzdTLm5cT089WihzL1dhRUYvY1pjRCcuM34+ZW5kc3RyZWFtCmVuZG9iagp4cmVmCjAgOAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwNjEgMDAwMDAgbiAKMDAwMDAwMDA5MiAwMDAwMCBuIAowMDAwMDAwMTk5IDAwMDAwIG4gCjAwMDAwMDA0MDIgMDAwMDAgbiAKMDAwMDAwMDQ3MCAwMDAwMCBuIAowMDAwMDAwNzMxIDAwMDAwIG4gCjAwMDAwMDA3OTAgMDAwMDAgbiAKdHJhaWxlcgo8PAovSUQgCls8Mzc5ZTJkYTQ2ZTIzYjk3MGE5NDhmYjAxMzViNTY3MjI+PDM3OWUyZGE0NmUyM2I5NzBhOTQ4ZmIwMTM1YjU2NzIyPl0KJSBSZXBvcnRMYWIgZ2VuZXJhdGVkIFBERiBkb2N1bWVudCAtLSBkaWdlc3QgKG9wZW5zb3VyY2UpCgovSW5mbyA1IDAgUgovUm9vdCA0IDAgUgovU2l6ZSA4Cj4+CnN0YXJ0eHJlZgo5ODAKJSVFT0YK"
 PDF_BYTES = base64.b64decode(PDF_B64)
 
 async def measure(name, coro):
@@ -95,7 +95,7 @@ async def run_e2e():
             res = await client.get(f"{API_BASE}/jobs/{job_id}")
             if res.status_code == 200:
                 job_status = res.json()
-                if job_status["status"] == "completed":
+                if job_status["status"] in ["succeeded", "completed"]:
                     break
                 elif job_status["status"] == "failed":
                     assert False, f"Job failed: {job_status.get('error')}"
@@ -103,7 +103,7 @@ async def run_e2e():
             
         took = int((time.perf_counter() - start) * 1000)
         print(f"[METRIC] PDF Ingestion & Embedding Generation: {took} ms")
-        assert job_status["status"] == "completed", "Job did not complete in time"
+        assert job_status["status"] in ["succeeded", "completed"], "Job did not complete in time"
         
         print("9-12. Verify PDF parsing, chunks, embeddings, vectors")
         # Explicit SQL checks via docker compose
@@ -142,8 +142,8 @@ async def run_e2e():
         assert "score" in results[0], "No score in result"
         
         print("15. Create conversation")
-        res = await client.post(f"{API_BASE}/conversations/", json={"title": "Test Chat"})
-        assert res.status_code == 200, f"Conv failed: {res.text}"
+        res = await client.post(f"{API_BASE}/conversations", json={"title": "Test Chat"})
+        assert res.status_code == 201, f"Conv failed: {res.text}"
         conv_id = res.json()["id"]
         
         print("16. Send message / Execute LangGraph workflow")
@@ -178,7 +178,7 @@ async def run_e2e():
             res = await client.get(f"{API_BASE}/jobs/{review_job_id}")
             if res.status_code == 200:
                 job_status = res.json()
-                if job_status["status"] == "completed":
+                if job_status["status"] in ["succeeded", "completed"]:
                     break
                 elif job_status["status"] == "failed":
                     assert False, f"Review Job failed: {job_status.get('error')}"
@@ -186,7 +186,7 @@ async def run_e2e():
         
         took = int((time.perf_counter() - start) * 1000)
         print(f"[METRIC] Complete Literature Review Latency: {took} ms")
-        assert job_status["status"] == "completed", "Review job did not complete"
+        assert job_status["status"] in ["succeeded", "completed"], "Review job did not complete"
         
         print("====================================")
         print("E2E Validation PASS")

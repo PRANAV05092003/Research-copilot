@@ -46,6 +46,17 @@ async def get_current_user(
         
     return user
 
+async def get_current_workspace_id(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+) -> str:
+    from app.models import Workspace
+    ws_result = await db.execute(select(Workspace).where(Workspace.owner_id == current_user.id))
+    workspace = ws_result.scalars().first()
+    if not workspace:
+        raise AppError(status_code=400, title="Bad Request", detail="No workspace found")
+    return workspace.id
+
 async def get_paper_repo(db: AsyncSession = Depends(get_db)) -> SQLAlchemyPaperRepository:
     return SQLAlchemyPaperRepository(db)
 

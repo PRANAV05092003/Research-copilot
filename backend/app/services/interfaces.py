@@ -106,7 +106,15 @@ class ConcreteResearchAgentService(ResearchAgentService):
             result={"topic": topic}
         )
         job = await self.job_repo.create(job)
-        # ARQ enqueue goes here
+        
+        import os
+        from arq import create_pool
+        from arq.connections import RedisSettings
+        
+        redis_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
+        pool = await create_pool(RedisSettings.from_dsn(redis_url))
+        await pool.enqueue_job('deep_research_task', job.id, topic, workspace_id)
+        
         return job.id
 
 class ConcreteConversationService(ConversationService):

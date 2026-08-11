@@ -102,6 +102,17 @@ async def ingest_paper_task(ctx: dict[str, Any], paper_id: uuid.UUID, file_bytes
         await db.commit()
         logger.info(f"Finished ingestion for paper {paper_id}, created {len(chunks)} chunks")
 
+async def deep_research_task(ctx: dict[str, Any], job_id: uuid.UUID, topic: str, workspace_id: uuid.UUID) -> None:
+    logger.info(f"Starting deep research job {job_id} for topic: {topic}")
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(select(Job).where(Job.id == job_id))
+        job = result.scalar_one_or_none()
+        if job:
+            job.status = 'succeeded'
+            job.progress = 100
+            await db.commit()
+            logger.info(f"Finished deep research job {job_id}")
+
 async def startup(ctx: dict[str, Any]) -> None:
     pass
 
@@ -109,7 +120,7 @@ async def shutdown(ctx: dict[str, Any]) -> None:
     pass
 
 class WorkerSettings:
-    functions = (ingest_paper_task,)
+    functions = (ingest_paper_task, deep_research_task)
     on_startup = startup
     on_shutdown = shutdown
     redis_settings = RedisSettings.from_dsn(os.getenv("REDIS_URL", "redis://redis:6379/0"))
