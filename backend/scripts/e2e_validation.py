@@ -3,7 +3,6 @@ import base64
 import json
 import random
 import string
-import subprocess
 import time
 
 import httpx
@@ -132,29 +131,15 @@ async def run_e2e():
             'embedding_dim', (SELECT vector_dims(embedding) FROM paper_chunks LIMIT 1)
         );
         """
-        db_check = subprocess.run(
-            [  # noqa: ASYNC221
-                "docker",
-                "compose",
-                "exec",
-                "-T",
-                "postgres",
-                "psql",
-                "-U",
-                "postgres",
-                "-d",
-                "postgres",
-                "-t",
-                "-c",
-                sql_cmd,
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
+        process = await asyncio.create_subprocess_exec(
+            "docker", "compose", "exec", "-T", "postgres", "psql", "-U", "postgres", "-d", "copilot", "-t", "-c", sql_cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
         )
-        if db_check.returncode == 0:
+        stdout, stderr = await process.communicate()
+        if process.returncode == 0:
             try:
-                db_res = json.loads(db_check.stdout.strip())
+                db_res = json.loads(stdout.strip())
                 assert db_res["paper_count"] >= 1, "Paper not found in DB"
                 assert db_res["chunk_count"] > 0, "Chunks not found in DB"
                 assert db_res["embedding_dim"] == 384, (
@@ -166,9 +151,8 @@ async def run_e2e():
             except Exception as e:
                 print(f"Warning: Failed to parse SQL output: {e}")
         else:
-            print(
-                "Warning: Could not connect to DB via docker compose to verify chunks directly. Skipping direct DB assert."
-            )
+            print(f"DB verification failed. stdout: {stdout.decode()} stderr: {stderr.decode()}")
+            assert False, "Could not connect to DB via docker compose to verify chunks directly."
 
         print("13. Execute real hybrid search")
         req = {"query": "Hello", "top_k": 5, "mode": "hybrid"}
