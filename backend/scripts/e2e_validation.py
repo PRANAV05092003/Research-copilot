@@ -33,7 +33,7 @@ async def run_e2e():
     # 1. Register User
     async with httpx.AsyncClient() as client:
         # Check Health
-        health = await measure("API Startup / Health", client.get("http://localhost:8000/api/v1/health"))
+        health = await measure("API Startup / Health", client.get("http://localhost:8000/api/v1/health/live"))
         assert health.status_code == 200, f"Health check failed: {health.status_code}"
         
         print("1. Register user")
