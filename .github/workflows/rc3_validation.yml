@@ -1,0 +1,141 @@
+name: RC3 Final Validation
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - rc3
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+          
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        run: |
+          cd backend
+          pip install -e ".[dev]"
+          
+      - name: Install Frontend dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Static Analysis - Backend (Ruff)
+        run: |
+          cd backend
+          ruff check .
+
+      - name: Static Analysis - Backend (MyPy)
+        run: |
+          cd backend
+          mypy app
+          
+      - name: Security Scan - Backend (Bandit)
+        run: |
+          cd backend
+          bandit -r app -f txt -o bandit_report.txt || true
+          cat bandit_report.txt
+          
+      - name: Security Scan - Dev Dependencies (Pip Audit)
+        run: |
+          cd backend
+          pip-audit > pip_audit_dev.txt || true
+          cat pip_audit_dev.txt
+
+      - name: Frontend Checks
+        run: |
+          cd frontend
+          npm run typecheck
+          npm run lint
+          npm run test -- --passWithNoTests
+
+      - name: Clean Build Docker Image
+        run: |
+          docker compose build --no-cache
+          
+      - name: Verify Image Sizes and Dependencies
+        run: |
+          docker images
+          
+          docker compose run --entrypoint "pip list" api > /tmp/prod_deps.txt
+          cat /tmp/prod_deps.txt
+          
+          echo "Verifying test/dev dependencies absent..."
+          if grep -iE "pytest|ruff|mypy|bandit|pip-audit|notebook" /tmp/prod_deps.txt; then
+            echo "Dev dependencies leaked into prod image!"
+            exit 1
+          fi
+          
+          echo "Verifying CUDA absent and CPU PyTorch present..."
+          if grep -i "+cu" /tmp/prod_deps.txt; then echo "CUDA pytorch leaked into prod image" && exit 1; fi
+          if ! grep -i "torch" /tmp/prod_deps.txt; then echo "PyTorch missing" && exit 1; fi
+          
+          echo "Verifying SentenceTransformers load..."
+          docker compose run --entrypoint 'python -c "import sentence_transformers; print(\"OK\")"' api
+
+      - name: Security Scan - Prod Runtime (Pip Audit)
+        run: |
+          cd backend
+          docker compose run --entrypoint "pip freeze" api > prod_requirements.txt
+          pip-audit -r prod_requirements.txt > pip_audit_prod.txt || true
+          cat pip_audit_prod.txt
+          
+      - name: Start Full Stack and Wait for Health
+        run: |
+          docker compose up -d
+          
+          echo "Waiting for PostgreSQL..."
+          timeout 30s bash -c "until docker compose exec -T postgres pg_isready -U postgres; do sleep 1; done"
+          
+          echo "Waiting for Redis..."
+          timeout 30s bash -c "until docker compose exec -T redis redis-cli ping | grep PONG; do sleep 1; done"
+          
+          echo "Waiting for API..."
+          timeout 30s bash -c "until curl -s http://localhost:8000/api/v1/health; do sleep 1; done"
+
+      - name: Run Database Migrations
+        run: |
+          docker compose exec -T api alembic upgrade head
+          
+      - name: Run E2E Integration and Performance Test
+        run: |
+          cd backend
+          python scripts/e2e_validation.py > e2e_metrics.txt 2>&1 || (cat e2e_metrics.txt && exit 1)
+          cat e2e_metrics.txt
+          
+      - name: Show Logs on Failure
+        if: failure()
+        run: |
+          docker compose logs > docker_failure_logs.txt
+          cat docker_failure_logs.txt
+
+      - name: Archive CI Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-artifacts
+          path: |
+            backend/pip_audit_dev.txt
+            backend/pip_audit_prod.txt
+            backend/bandit_report.txt
+            backend/e2e_metrics.txt
+            docker_failure_logs.txt
