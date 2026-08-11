@@ -1,4 +1,3 @@
-
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -18,7 +17,7 @@ class Settings(BaseSettings):
 
     CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:3000", "http://localhost"]
 
-    UPLOAD_MAX_BYTES: int = 26214400 # 25MB
+    UPLOAD_MAX_BYTES: int = 26214400  # 25MB
     UPLOAD_MAX_PAGES: int = 500
     UPLOAD_DIR: str = "/data/uploads"
 
@@ -50,4 +49,5 @@ class Settings(BaseSettings):
                 raise ValueError("EMBEDDING_PROVIDER cannot be 'mock' in production environment.")
         return self
 
-settings = Settings() # type: ignore
+
+settings = Settings()  # type: ignore

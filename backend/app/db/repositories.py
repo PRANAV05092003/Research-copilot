@@ -11,14 +11,15 @@ class PaperRepository(abc.ABC):
     @abc.abstractmethod
     async def get_by_id(self, paper_id: uuid.UUID) -> Paper | None:
         pass
-        
+
     @abc.abstractmethod
     async def list_by_workspace(self, workspace_id: uuid.UUID, limit: int = 20) -> list[Paper]:
         pass
-        
+
     @abc.abstractmethod
     async def create(self, paper: Paper) -> Paper:
         pass
+
 
 class ConversationRepository(abc.ABC):
     @abc.abstractmethod
@@ -30,7 +31,9 @@ class ConversationRepository(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def list_by_workspace(self, workspace_id: uuid.UUID, limit: int = 20) -> list[Conversation]:
+    async def list_by_workspace(
+        self, workspace_id: uuid.UUID, limit: int = 20
+    ) -> list[Conversation]:
         pass
 
     @abc.abstractmethod
@@ -40,6 +43,7 @@ class ConversationRepository(abc.ABC):
     @abc.abstractmethod
     async def add_message(self, message: Message) -> Message:
         pass
+
 
 class JobRepository(abc.ABC):
     @abc.abstractmethod
@@ -51,8 +55,11 @@ class JobRepository(abc.ABC):
         pass
 
     @abc.abstractmethod
-    async def update_status(self, job_id: uuid.UUID, status: str, progress: int = 0, error: str | None = None) -> Job | None:
+    async def update_status(
+        self, job_id: uuid.UUID, status: str, progress: int = 0, error: str | None = None
+    ) -> Job | None:
         pass
+
 
 class SQLAlchemyPaperRepository(PaperRepository):
     def __init__(self, session: AsyncSession):
@@ -64,7 +71,12 @@ class SQLAlchemyPaperRepository(PaperRepository):
         return result.scalar_one_or_none()
 
     async def list_by_workspace(self, workspace_id: uuid.UUID, limit: int = 20) -> list[Paper]:
-        stmt = select(Paper).where(Paper.workspace_id == workspace_id).order_by(Paper.created_at.desc()).limit(limit)
+        stmt = (
+            select(Paper)
+            .where(Paper.workspace_id == workspace_id)
+            .order_by(Paper.created_at.desc())
+            .limit(limit)
+        )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
@@ -73,6 +85,7 @@ class SQLAlchemyPaperRepository(PaperRepository):
         await self.session.commit()
         await self.session.refresh(paper)
         return paper
+
 
 class SQLAlchemyConversationRepository(ConversationRepository):
     def __init__(self, session: AsyncSession):
@@ -89,13 +102,24 @@ class SQLAlchemyConversationRepository(ConversationRepository):
         await self.session.refresh(conversation)
         return conversation
 
-    async def list_by_workspace(self, workspace_id: uuid.UUID, limit: int = 20) -> list[Conversation]:
-        stmt = select(Conversation).where(Conversation.workspace_id == workspace_id).order_by(Conversation.created_at.desc()).limit(limit)
+    async def list_by_workspace(
+        self, workspace_id: uuid.UUID, limit: int = 20
+    ) -> list[Conversation]:
+        stmt = (
+            select(Conversation)
+            .where(Conversation.workspace_id == workspace_id)
+            .order_by(Conversation.created_at.desc())
+            .limit(limit)
+        )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
     async def get_messages(self, conv_id: uuid.UUID) -> list[Message]:
-        stmt = select(Message).where(Message.conversation_id == conv_id).order_by(Message.created_at.asc())
+        stmt = (
+            select(Message)
+            .where(Message.conversation_id == conv_id)
+            .order_by(Message.created_at.asc())
+        )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
@@ -104,6 +128,7 @@ class SQLAlchemyConversationRepository(ConversationRepository):
         await self.session.commit()
         await self.session.refresh(message)
         return message
+
 
 class SQLAlchemyJobRepository(JobRepository):
     def __init__(self, session: AsyncSession):
@@ -120,7 +145,9 @@ class SQLAlchemyJobRepository(JobRepository):
         await self.session.refresh(job)
         return job
 
-    async def update_status(self, job_id: uuid.UUID, status: str, progress: int = 0, error: str | None = None) -> Job | None:
+    async def update_status(
+        self, job_id: uuid.UUID, status: str, progress: int = 0, error: str | None = None
+    ) -> Job | None:
         job = await self.get_by_id(job_id)
         if job:
             job.status = status

@@ -70,8 +70,31 @@ jobs:
 
       - name: Create CI environment file
         run: |
-          cp .env.example .env
-          sed -i 's/ENVIRONMENT=development/ENVIRONMENT=test/g' .env
+          echo "APP_NAME=Research Copilot" > .env
+          echo "ENVIRONMENT=test" >> .env
+          echo "LOG_LEVEL=INFO" >> .env
+          echo "POSTGRES_USER=postgres" >> .env
+          echo "POSTGRES_PASSWORD=postgres" >> .env
+          echo "POSTGRES_DB=copilot" >> .env
+          echo "JWT_SECRET_KEY=super-secret-ci-key-for-testing" >> .env
+          echo "JWT_ALGORITHM=HS256" >> .env
+          echo "ACCESS_TOKEN_TTL_MINUTES=15" >> .env
+          echo "REFRESH_TOKEN_TTL_DAYS=7" >> .env
+          echo "UPLOAD_MAX_BYTES=26214400" >> .env
+          echo "UPLOAD_MAX_PAGES=500" >> .env
+          echo "UPLOAD_DIR=/data/uploads" >> .env
+          echo "EMBEDDING_PROVIDER=mock" >> .env
+          echo "EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2" >> .env
+          echo "EMBEDDING_DIM=384" >> .env
+          echo "LLM_PROVIDER=mock" >> .env
+          echo "OPENAI_BASE_URL=https://api.openai.com/v1" >> .env
+          echo "LLM_MODEL=gpt-4o-mini" >> .env
+          echo "LLM_TIMEOUT_SECONDS=60" >> .env
+          echo "RATE_LIMIT_PER_MINUTE=120" >> .env
+          echo "AUTH_RATE_LIMIT_PER_MINUTE=5" >> .env
+          echo "WORKER_ENABLED=true" >> .env
+          echo "METRICS_ENABLED=true" >> .env
+          echo "SEED_ON_STARTUP=false" >> .env
           echo "Generated CI .env file successfully."
 
       - name: Clean Build Docker Image
@@ -100,8 +123,8 @@ jobs:
 
       - name: Security Scan - Prod Runtime (Pip Audit)
         run: |
+          docker compose run --entrypoint "pip freeze" api > backend/prod_requirements.txt
           cd backend
-          docker compose run --entrypoint "pip freeze" api > prod_requirements.txt
           pip-audit -r prod_requirements.txt > pip_audit_prod.txt || true
           cat pip_audit_prod.txt
           

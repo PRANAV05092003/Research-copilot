@@ -9,7 +9,7 @@ class AppError(Exception):
         detail: str,
         error_type: str = "about:blank",
         instance: str | None = None,
-        extra: dict[str, Any] | None = None
+        extra: dict[str, Any] | None = None,
     ):
         self.status_code = status_code
         self.title = title

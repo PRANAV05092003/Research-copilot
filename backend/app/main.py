@@ -15,6 +15,7 @@ async def lifespan(app: FastAPI) -> typing.Any:
     yield
     # Shutdown logic
 
+
 def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.APP_NAME,
@@ -22,7 +23,7 @@ def create_app() -> FastAPI:
         description="API for Research Copilot",
         openapi_url="/openapi.json",
         docs_url="/docs",
-        lifespan=lifespan
+        lifespan=lifespan,
     )
 
     app.add_middleware(
@@ -41,12 +42,9 @@ def create_app() -> FastAPI:
 
     @app.get("/")
     async def root() -> typing.Any:
-        return {
-            "name": settings.APP_NAME,
-            "version": "0.1.0",
-            "docs_url": "/docs"
-        }
+        return {"name": settings.APP_NAME, "version": "0.1.0", "docs_url": "/docs"}
 
     return app
+
 
 app = create_app()

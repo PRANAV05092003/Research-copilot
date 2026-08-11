@@ -12,10 +12,11 @@ def should_continue(state: AgentState) -> str:
         return "planner"
     return "writer"
 
+
 def build_research_graph(nodes: AgentNodes) -> Any:
     """Builds and compiles the LangGraph."""
     workflow = StateGraph(AgentState)
-    
+
     # Add nodes
     workflow.add_node("planner", nodes.planner_node)
     workflow.add_node("retriever", nodes.retriever_node)
@@ -23,24 +24,19 @@ def build_research_graph(nodes: AgentNodes) -> Any:
     workflow.add_node("verifier", nodes.verifier_node)
     workflow.add_node("critic", nodes.critic_node)
     workflow.add_node("writer", nodes.writer_node)
-    
+
     # Define edges
     workflow.set_entry_point("planner")
     workflow.add_edge("planner", "retriever")
     workflow.add_edge("retriever", "reader")
     workflow.add_edge("reader", "verifier")
     workflow.add_edge("verifier", "critic")
-    
+
     # Conditional edge
     workflow.add_conditional_edges(
-        "critic",
-        should_continue,
-        {
-            "planner": "planner",
-            "writer": "writer"
-        }
+        "critic", should_continue, {"planner": "planner", "writer": "writer"}
     )
-    
+
     workflow.add_edge("writer", END)
-    
+
     return workflow.compile()

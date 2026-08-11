@@ -9,16 +9,13 @@ engine = create_async_engine(
     echo=settings.ENVIRONMENT == "development",
     pool_pre_ping=True,
     pool_size=10,
-    max_overflow=20
+    max_overflow=20,
 )
 
 AsyncSessionLocal = async_sessionmaker(
-    bind=engine,
-    autocommit=False,
-    autoflush=False,
-    expire_on_commit=False,
-    class_=AsyncSession
+    bind=engine, autocommit=False, autoflush=False, expire_on_commit=False, class_=AsyncSession
 )
+
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:

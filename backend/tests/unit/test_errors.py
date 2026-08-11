@@ -8,9 +8,9 @@ def test_app_error_initialization():
         detail="The request is invalid.",
         error_type="https://example.com/probs/bad-request",
         instance="/api/v1/resource/123",
-        extra={"invalid_params": [{"name": "age", "reason": "must be positive"}]}
+        extra={"invalid_params": [{"name": "age", "reason": "must be positive"}]},
     )
-    
+
     assert err.status_code == 400
     assert err.title == "Bad Request"
     assert err.detail == "The request is invalid."
@@ -19,13 +19,10 @@ def test_app_error_initialization():
     assert err.extra == {"invalid_params": [{"name": "age", "reason": "must be positive"}]}
     assert str(err) == "The request is invalid."
 
+
 def test_app_error_defaults():
-    err = AppError(
-        status_code=500,
-        title="Server Error",
-        detail="Something went wrong."
-    )
-    
+    err = AppError(status_code=500, title="Server Error", detail="Something went wrong.")
+
     assert err.status_code == 500
     assert err.title == "Server Error"
     assert err.detail == "Something went wrong."

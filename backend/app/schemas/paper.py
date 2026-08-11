@@ -21,10 +21,12 @@ class PaperOut(BaseModel):
     updated_at: datetime
     model_config = ConfigDict(from_attributes=True)
 
+
 class PaperUpdate(BaseModel):
     title: str | None = None
     year: int | None = None
     venue: str | None = None
+
 
 class JobOut(BaseModel):
     id: uuid.UUID

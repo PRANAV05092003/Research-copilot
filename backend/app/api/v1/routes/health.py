@@ -8,9 +8,11 @@ from app.db.session import get_db
 
 router = APIRouter()
 
+
 @router.get("/health/live")
 async def health_live() -> typing.Any:
     return {"status": "ok"}
+
 
 @router.get("/health/ready")
 async def health_ready(db: AsyncSession = Depends(get_db)) -> typing.Any:
@@ -20,4 +22,5 @@ async def health_ready(db: AsyncSession = Depends(get_db)) -> typing.Any:
     except Exception:
         # We would normally return 503 here
         from fastapi import HTTPException
+
         raise HTTPException(status_code=503, detail="Database not ready")

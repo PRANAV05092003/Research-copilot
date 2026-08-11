@@ -17,6 +17,7 @@ class CitationOut(BaseModel):
     verification_score: float | None
     model_config = ConfigDict(from_attributes=True)
 
+
 class MessageOut(BaseModel):
     id: uuid.UUID
     role: str
@@ -27,6 +28,7 @@ class MessageOut(BaseModel):
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
 
+
 class ConversationOut(BaseModel):
     id: uuid.UUID
     title: str | None
@@ -35,10 +37,12 @@ class ConversationOut(BaseModel):
     updated_at: datetime
     model_config = ConfigDict(from_attributes=True)
 
+
 class ConversationDetailOut(ConversationOut):
     messages: list[MessageOut] = []
     model_config = ConfigDict(from_attributes=True)
 
+
 class MessageCreate(BaseModel):
     content: str
-    mode: str = "standard" # "standard" | "deep_research"
+    mode: str = "standard"  # "standard" | "deep_research"

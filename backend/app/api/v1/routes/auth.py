@@ -21,6 +21,7 @@ from app.schemas.auth import TokenPair, UserCreate, UserLogin, UserOut
 
 router = APIRouter()
 
+
 @router.post("/register", response_model=UserOut, status_code=201)
 async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)) -> typing.Any:
     # Check if user exists
@@ -41,8 +42,11 @@ async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)) -> t
     await db.refresh(user)
     return user
 
+
 @router.post("/login", response_model=TokenPair)
-async def login(user_in: UserLogin, response: Response, db: AsyncSession = Depends(get_db)) -> typing.Any:
+async def login(
+    user_in: UserLogin, response: Response, db: AsyncSession = Depends(get_db)
+) -> typing.Any:
     result = await db.execute(select(User).where(User.email == user_in.email))
     user = result.scalar_one_or_none()
 
@@ -56,9 +60,11 @@ async def login(user_in: UserLogin, response: Response, db: AsyncSession = Depen
 
     access_token = create_access_token(subject=user.id, workspace_id=ws_id)
     refresh_token = create_refresh_token()
-    
+
     expires_at = datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_TTL_DAYS)
-    db_token = RefreshToken(user_id=user.id, token_hash=hash_refresh_token(refresh_token), expires_at=expires_at)
+    db_token = RefreshToken(
+        user_id=user.id, token_hash=hash_refresh_token(refresh_token), expires_at=expires_at
+    )
     db.add(db_token)
     await db.commit()
 
@@ -70,31 +76,31 @@ async def login(user_in: UserLogin, response: Response, db: AsyncSession = Depen
         samesite="strict",
         secure=settings.ENVIRONMENT != "development",
         max_age=settings.REFRESH_TOKEN_TTL_DAYS * 24 * 3600,
-        path="/api/v1/auth"
+        path="/api/v1/auth",
     )
 
     return TokenPair(access_token=access_token, refresh_token=refresh_token)
 
+
 @router.post("/refresh", response_model=TokenPair)
 async def refresh_token_endpoint(
-    response: Response, 
-    refresh_token: str = Cookie(None), 
-    db: AsyncSession = Depends(get_db)
+    response: Response, refresh_token: str = Cookie(None), db: AsyncSession = Depends(get_db)
 ) -> typing.Any:
     if not refresh_token:
         raise AppError(status_code=401, title="Unauthorized", detail="Refresh token missing")
-    
+
     hashed = hash_refresh_token(refresh_token)
     result = await db.execute(select(RefreshToken).where(RefreshToken.token_hash == hashed))
     db_token = result.scalar_one_or_none()
-    
+
     if not db_token:
         raise AppError(status_code=401, title="Unauthorized", detail="Invalid refresh token")
-    
+
     if db_token.revoked_at:
         # Replay detection: this token was already used or revoked!
         # Revoke ALL tokens for this user as a security measure
         from sqlalchemy import update
+
         await db.execute(
             update(RefreshToken)
             .where(RefreshToken.user_id == db_token.user_id)
@@ -103,36 +109,34 @@ async def refresh_token_endpoint(
         )
         await db.commit()
         raise AppError(status_code=401, title="Unauthorized", detail="Refresh token revoked")
-        
+
     if db_token.expires_at < datetime.now(UTC):
         raise AppError(status_code=401, title="Unauthorized", detail="Refresh token expired")
-        
+
     # Valid token -> rotate
     db_token.revoked_at = datetime.now(UTC)
-    
+
     # Get user
     user_result = await db.execute(select(User).where(User.id == db_token.user_id))
     user = user_result.scalar_one_or_none()
     if not user or not user.is_active:
         raise AppError(status_code=401, title="Unauthorized", detail="User not found or inactive")
-        
+
     # Issue new tokens
     ws_result = await db.execute(select(Workspace).where(Workspace.owner_id == user.id))
     workspace = ws_result.scalars().first()
     ws_id = workspace.id if workspace else None
-    
+
     new_access_token = create_access_token(subject=user.id, workspace_id=ws_id)
     new_refresh_token = create_refresh_token()
-    
+
     expires_at = datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_TTL_DAYS)
     new_db_token = RefreshToken(
-        user_id=user.id, 
-        token_hash=hash_refresh_token(new_refresh_token), 
-        expires_at=expires_at
+        user_id=user.id, token_hash=hash_refresh_token(new_refresh_token), expires_at=expires_at
     )
     db.add(new_db_token)
     await db.commit()
-    
+
     response.set_cookie(
         key="refresh_token",
         value=new_refresh_token,
@@ -140,16 +144,15 @@ async def refresh_token_endpoint(
         samesite="strict",
         secure=settings.ENVIRONMENT != "development",
         max_age=settings.REFRESH_TOKEN_TTL_DAYS * 24 * 3600,
-        path="/api/v1/auth"
+        path="/api/v1/auth",
     )
-    
+
     return TokenPair(access_token=new_access_token, refresh_token=new_refresh_token)
+
 
 @router.post("/logout")
 async def logout(
-    response: Response, 
-    refresh_token: str = Cookie(None), 
-    db: AsyncSession = Depends(get_db)
+    response: Response, refresh_token: str = Cookie(None), db: AsyncSession = Depends(get_db)
 ) -> typing.Any:
     if refresh_token:
         hashed = hash_refresh_token(refresh_token)
@@ -158,15 +161,16 @@ async def logout(
         if db_token and not db_token.revoked_at:
             db_token.revoked_at = datetime.now(UTC)
             await db.commit()
-            
+
     response.delete_cookie(
-        key="refresh_token", 
+        key="refresh_token",
         path="/api/v1/auth",
         httponly=True,
         samesite="strict",
-        secure=settings.ENVIRONMENT != "development"
+        secure=settings.ENVIRONMENT != "development",
     )
     return {"message": "Logged out successfully"}
+
 
 @router.get("/me", response_model=UserOut)
 async def get_me(current_user: User = Depends(get_current_user)) -> typing.Any:

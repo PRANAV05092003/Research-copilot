@@ -5,12 +5,13 @@ def test_config_defaults():
     # Since we can't easily mock the global instantiation without a patch,
     # we just test a fresh instance with required fields mocked.
     import os
+
     os.environ["DATABASE_URL"] = "postgresql+asyncpg://user:pass@localhost/db"
     os.environ["REDIS_URL"] = "redis://localhost:6379/0"
     os.environ["JWT_SECRET_KEY"] = "supersecret"
-    
+
     settings = Settings()
-    
+
     assert settings.APP_NAME == "Research Copilot"
     assert settings.ENVIRONMENT == "development"
     assert settings.LOG_LEVEL == "INFO"
@@ -38,14 +39,15 @@ def test_config_defaults():
     assert settings.METRICS_ENABLED is True
     assert settings.SEED_ON_STARTUP is False
 
+
 def test_config_overrides(monkeypatch):
     monkeypatch.setenv("APP_NAME", "Test App")
     monkeypatch.setenv("DATABASE_URL", "sqlite+aiosqlite:///:memory:")
     monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/1")
     monkeypatch.setenv("JWT_SECRET_KEY", "newsecret")
-    
+
     settings = Settings()
-    
+
     assert settings.APP_NAME == "Test App"
     assert settings.DATABASE_URL == "sqlite+aiosqlite:///:memory:"
     assert settings.REDIS_URL == "redis://localhost:6379/1"

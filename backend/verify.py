@@ -8,12 +8,18 @@ from sqlalchemy.ext.asyncio import create_async_engine
 async def verify():
     print("Verifying PostgreSQL connectivity...")
     try:
-        engine = create_async_engine("postgresql+asyncpg://postgres:postgres@localhost:5432/copilot")
+        engine = create_async_engine(
+            "postgresql+asyncpg://postgres:postgres@localhost:5432/copilot"
+        )
         async with engine.connect() as conn:
             print("PostgreSQL connection successful.")
             # Verify pgvector
             try:
-                await conn.execute(engine.dialect.statement_compiler.statement_cls("CREATE EXTENSION IF NOT EXISTS vector"))
+                await conn.execute(
+                    engine.dialect.statement_compiler.statement_cls(
+                        "CREATE EXTENSION IF NOT EXISTS vector"
+                    )
+                )
                 print("pgvector extension is available.")
             except Exception as e:
                 print(f"Error checking pgvector: {e}")
@@ -29,6 +35,7 @@ async def verify():
     except Exception as e:
         print(f"Failed to connect to Redis: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     asyncio.run(verify())

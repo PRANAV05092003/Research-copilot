@@ -9,9 +9,11 @@ class UserCreate(BaseModel):
     password: str
     full_name: str | None = None
 
+
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
 
 class UserOut(BaseModel):
     id: uuid.UUID
@@ -20,6 +22,7 @@ class UserOut(BaseModel):
     is_active: bool
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
+
 
 class TokenPair(BaseModel):
     access_token: str

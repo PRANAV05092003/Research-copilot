@@ -8,11 +8,13 @@ class SearchFilters(BaseModel):
     year_from: int | None = None
     year_to: int | None = None
 
+
 class SearchRequest(BaseModel):
     query: str
     top_k: int = 10
     filters: SearchFilters | None = None
-    mode: str = "hybrid" # "hybrid", "semantic", "keyword"
+    mode: str = "hybrid"  # "hybrid", "semantic", "keyword"
+
 
 class SearchResultItem(BaseModel):
     chunk_id: uuid.UUID
@@ -21,6 +23,7 @@ class SearchResultItem(BaseModel):
     text: str
     page_number: int | None
     score: float
+
 
 class SearchResponse(BaseModel):
     results: list[SearchResultItem]
